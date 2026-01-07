@@ -1,0 +1,16 @@
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+
+# Fichier d'environnement
+.env
+
+# Dossier rapport
+rapport/
+
+# Fichiers temporaires de l'éditeur (VSCode, PyCharm)
+.vscode/
+.idea/
+
+# Mac / Linux
+.DS_Store
