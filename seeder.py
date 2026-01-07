@@ -1,6 +1,6 @@
-from models.etudiants import create_etudiant, get_all_etudiants
-from models.livres import create_livre, get_all_livres
-from models.emprunts import create_emprunt
+from repository.etudiants import create_etudiant, get_all_etudiants
+from repository.livres import create_livre, get_all_livres
+from repository.emprunts import create_emprunt
 from database import init_db
 import random
 import faker

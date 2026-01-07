@@ -1,6 +1,6 @@
-from models.etudiants import *
-from models.livres import *
-from models.emprunts import *
+from repository.etudiants import *
+from repository.livres import *
+from repository.emprunts import *
 
 def menu():
     print("\n===== BIBLIOTHÈQUE =====")
