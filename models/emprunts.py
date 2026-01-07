@@ -1,155 +1,138 @@
-from database import get_connection
-from models.livres import get_livre_by_isbn, update_livre
-from models.etudiants import get_etudiant_by_id
+from database import get_session
+from models.emprunt import Emprunt
+from models.livre import Livre
+from models.etudiant import Etudiant
+from datetime import date
 
 def create_emprunt(id_etud, isbn):
-    etud = get_etudiant_by_id(id_etud)
-    if not etud:
-        print("Étudiant introuvable.")
-        return False
-
-    livre = get_livre_by_isbn(isbn)
-    if not livre:
-        print("Livre introuvable.")
-        return False
-
-    if livre["exemplaires_dispo"] <= 0:
-        print("Aucun exemplaire disponible.")
-        return False
-
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
+    """Crée un nouvel emprunt"""
+    session = get_session()
     try:
-        cur.execute(
-            "INSERT INTO Emprunt (id_etud, isbn) VALUES (%s, %s)",
-            (id_etud, isbn)
-        )
-        update_livre(isbn, exemplaires_dispo=livre["exemplaires_dispo"] - 1)
-        conn.commit()
+        # Vérifier l'étudiant
+        etudiant = session.query(Etudiant).filter(Etudiant.id_etud == id_etud).first()
+        if not etudiant:
+            print("Étudiant introuvable.")
+            return False
+
+        # Vérifier le livre
+        livre = session.query(Livre).filter(Livre.isbn == isbn).first()
+        if not livre:
+            print("Livre introuvable.")
+            return False
+
+        # Vérifier la disponibilité
+        if livre.exemplaires_dispo <= 0:
+            print("Aucun exemplaire disponible.")
+            return False
+
+        # Créer l'emprunt
+        emprunt = Emprunt(id_etud=id_etud, isbn=isbn)
+        session.add(emprunt)
+
+        # Décrémenter le stock
+        livre.exemplaires_dispo -= 1
+
+        session.commit()
         return True
     except Exception as e:
         print(f"Erreur création emprunt : {e}")
-        conn.rollback()
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
-# READ
 def get_all_emprunts():
-    conn = get_connection()
-    if not conn:
-        return []
-    cur = conn.cursor()
+    """Récupère tous les emprunts"""
+    session = get_session()
     try:
-        cur.execute("SELECT * FROM Emprunt ORDER BY date_emprunt DESC")
-        rows = cur.fetchall()
-        result = []
-        for r in rows:
-            result.append({
-                "id_emprunt": r[0],
-                "id_etud": r[1],
-                "isbn": r[2],
-                "date_emprunt": r[3],
-                "date_retour": r[4],
-                "amende": float(r[5])
-            })
-        return result
+        emprunts = session.query(Emprunt).order_by(Emprunt.date_emprunt.desc()).all()
+        return [
+            {
+                "id_emprunt": e.id_emprunt,
+                "id_etud": e.id_etud,
+                "isbn": e.isbn,
+                "date_emprunt": e.date_emprunt,
+                "date_retour": e.date_retour,
+                "amende": float(e.amende)
+            }
+            for e in emprunts
+        ]
     except Exception as e:
         print(f"Erreur récupération emprunts : {e}")
         return []
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
 def get_emprunts_by_etudiant(id_etud):
+    """Récupère les emprunts d'un étudiant"""
     if not isinstance(id_etud, int):
         print("id_etud doit être un entier.")
         return []
 
-    conn = get_connection()
-    if not conn:
-        return []
-    cur = conn.cursor()
+    session = get_session()
     try:
-        cur.execute(
-            "SELECT * FROM Emprunt WHERE id_etud=%s ORDER BY date_emprunt DESC",
-            (id_etud,)
-        )
-        rows = cur.fetchall()
-        result = []
-        for r in rows:
-            result.append({
-                "id_emprunt": r[0],
-                "id_etud": r[1],
-                "isbn": r[2],
-                "date_emprunt": r[3],
-                "date_retour": r[4],
-                "amende": float(r[5])
-            })
-        return result
+        emprunts = session.query(Emprunt).filter(Emprunt.id_etud == id_etud).order_by(Emprunt.date_emprunt.desc()).all()
+        return [
+            {
+                "id_emprunt": e.id_emprunt,
+                "id_etud": e.id_etud,
+                "isbn": e.isbn,
+                "date_emprunt": e.date_emprunt,
+                "date_retour": e.date_retour,
+                "amende": float(e.amende)
+            }
+            for e in emprunts
+        ]
     except Exception as e:
         print(f"Erreur récupération emprunts : {e}")
         return []
     finally:
-        cur.close()
-        conn.close()
-
+        session.close()
 
 def retour_emprunt(id_emprunt):
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
+    """Enregistre le retour d'un livre"""
+    session = get_session()
     try:
-        # Récupérer l'emprunt
-        cur.execute("SELECT isbn, date_retour FROM Emprunt WHERE id_emprunt=%s", (id_emprunt,))
-        emprunt_row = cur.fetchone()
-        if not emprunt_row:
-            print("Emprunt introuvable")
+        emprunt = session.query(Emprunt).filter(Emprunt.id_emprunt == id_emprunt).first()
+        if not emprunt:
+            print("Emprunt introuvable.")
             return False
 
-        isbn, date_retour = emprunt_row
-        if date_retour is not None:
-            print("Livre déjà retourné")
+        if emprunt.date_retour is not None:
+            print("Livre déjà retourné.")
             return False
 
-        cur.execute("UPDATE Emprunt SET date_retour=CURRENT_DATE WHERE id_emprunt=%s", (id_emprunt,))
+        # Enregistrer la date de retour
+        emprunt.date_retour = date.today()
 
-        livre = get_livre_by_isbn(isbn)
+        # Incrémenter le stock du livre
+        livre = session.query(Livre).filter(Livre.isbn == emprunt.isbn).first()
         if livre:
-            try:
-                stock = int(livre["exemplaires_dispo"]) + 1
-                update_livre(isbn, exemplaires_dispo=stock)
-            except (TypeError, ValueError):
-                print("Impossible de mettre à jour le stock du livre.")
-                conn.rollback()
-                return False
+            livre.exemplaires_dispo += 1
 
-        conn.commit()
+        session.commit()
         return True
     except Exception as e:
-        print("Erreur retour emprunt :", e)
-        conn.rollback()
+        print(f"Erreur retour emprunt : {e}")
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
-# DELETE
 def delete_emprunt(id_emprunt):
-    conn = get_connection()
-    cur = conn.cursor()
+    """Supprime un emprunt"""
+    session = get_session()
     try:
-        cur.execute("DELETE FROM Emprunt WHERE id_emprunt=%s", (id_emprunt,))
-        conn.commit()
+        emprunt = session.query(Emprunt).filter(Emprunt.id_emprunt == id_emprunt).first()
+        if not emprunt:
+            print("Emprunt introuvable.")
+            return False
+        session.delete(emprunt)
+        session.commit()
         return True
     except Exception as e:
-        print("Erreur:", e)
-        conn.rollback()
+        print(f"Erreur suppression emprunt : {e}")
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()

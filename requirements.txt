@@ -1,0 +1,4 @@
+sqlalchemy -- pip install sqlalchemy
+psycopg -- pip install psycopg
+dotenv -- pip install dotenv
+faker -- pip install faker

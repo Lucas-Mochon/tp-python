@@ -1,150 +1,133 @@
-from database import get_connection
+from database import get_session
+from models.etudiant import Etudiant
 
-# Helper : convertir un tuple en dictionnaire
-def _etudiant_to_dict(row):
-    if not row:
-        return None
-    return {
-        "id_etud": row[0],
-        "nom": row[1],
-        "prenom": row[2],
-        "email": row[3],
-        "date_inscription": row[4],
-        "solde_amende": float(row[5])
-    }
-
-# CREATE
 def create_etudiant(nom, prenom, email):
+    """Crée un nouvel étudiant"""
     if not (nom and prenom and email):
         print("Nom, prénom et email sont obligatoires.")
         return False
 
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
+    session = get_session()
     try:
-        query = """
-        INSERT INTO Etudiant (nom, prenom, email)
-        VALUES (%s, %s, %s)
-        """
-        cur.execute(query, (nom.strip(), prenom.strip(), email.strip().lower()))
-        conn.commit()
+        etudiant = Etudiant(
+            nom=nom.strip(),
+            prenom=prenom.strip(),
+            email=email.strip().lower()
+        )
+        session.add(etudiant)
+        session.commit()
         return True
     except Exception as e:
         print(f"Erreur création étudiant : {e}")
-        conn.rollback()
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
-# READ
 def get_all_etudiants():
-    conn = get_connection()
-    if not conn:
-        return []
-    cur = conn.cursor()
+    """Récupère tous les étudiants"""
+    session = get_session()
     try:
-        cur.execute("SELECT * FROM Etudiant ORDER BY id_etud")
-        rows = cur.fetchall()
-        return [_etudiant_to_dict(r) for r in rows]
+        etudiants = session.query(Etudiant).order_by(Etudiant.id_etud).all()
+        return [
+            {
+                "id_etud": e.id_etud,
+                "nom": e.nom,
+                "prenom": e.prenom,
+                "email": e.email,
+                "date_inscription": e.date_inscription,
+                "solde_amende": float(e.solde_amende)
+            }
+            for e in etudiants
+        ]
     except Exception as e:
         print(f"Erreur récupération étudiants : {e}")
         return []
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
 def get_etudiant_by_id(id_etud):
+    """Récupère un étudiant par son ID"""
     if not isinstance(id_etud, int):
         print("id_etud doit être un entier.")
         return None
 
-    conn = get_connection()
-    if not conn:
-        return None
-    cur = conn.cursor()
+    session = get_session()
     try:
-        cur.execute("SELECT * FROM Etudiant WHERE id_etud=%s", (id_etud,))
-        row = cur.fetchone()
-        return _etudiant_to_dict(row)
+        etudiant = session.query(Etudiant).filter(Etudiant.id_etud == id_etud).first()
+        if not etudiant:
+            return None
+        return {
+            "id_etud": etudiant.id_etud,
+            "nom": etudiant.nom,
+            "prenom": etudiant.prenom,
+            "email": etudiant.email,
+            "date_inscription": etudiant.date_inscription,
+            "solde_amende": float(etudiant.solde_amende)
+        }
     except Exception as e:
         print(f"Erreur récupération étudiant : {e}")
         return None
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
-# UPDATE
 def update_etudiant(id_etud, nom=None, prenom=None, email=None, solde_amende=None):
+    """Met à jour un étudiant"""
     if not isinstance(id_etud, int):
         print("id_etud doit être un entier.")
         return False
 
-    updates = []
-    params = []
-    if nom:
-        updates.append("nom=%s")
-        params.append(nom.strip())
-    if prenom:
-        updates.append("prenom=%s")
-        params.append(prenom.strip())
-    if email:
-        updates.append("email=%s")
-        params.append(email.strip().lower())
-    if solde_amende is not None:
-        try:
-            solde_amende = float(solde_amende)
-            if solde_amende < 0:
-                print("Le solde de l'amende ne peut pas être négatif.")
-                return False
-            updates.append("solde_amende=%s")
-            params.append(solde_amende)
-        except ValueError:
-            print("Le solde de l'amende doit être un nombre.")
+    session = get_session()
+    try:
+        etudiant = session.query(Etudiant).filter(Etudiant.id_etud == id_etud).first()
+        if not etudiant:
+            print("Étudiant introuvable.")
             return False
 
-    if not updates:
-        print("Aucune donnée à mettre à jour.")
-        return False
+        if nom:
+            etudiant.nom = nom.strip()
+        if prenom:
+            etudiant.prenom = prenom.strip()
+        if email:
+            etudiant.email = email.strip().lower()
+        if solde_amende is not None:
+            try:
+                solde = float(solde_amende)
+                if solde < 0:
+                    print("Le solde de l'amende ne peut pas être négatif.")
+                    return False
+                etudiant.solde_amende = solde
+            except ValueError:
+                print("Le solde doit être un nombre.")
+                return False
 
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
-    try:
-        query = f"UPDATE Etudiant SET {', '.join(updates)} WHERE id_etud=%s"
-        params.append(id_etud)
-        cur.execute(query, tuple(params))
-        conn.commit()
+        session.commit()
         return True
     except Exception as e:
         print(f"Erreur mise à jour étudiant : {e}")
-        conn.rollback()
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()
 
-# DELETE
 def delete_etudiant(id_etud):
+    """Supprime un étudiant"""
     if not isinstance(id_etud, int):
         print("id_etud doit être un entier.")
         return False
 
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
+    session = get_session()
     try:
-        cur.execute("DELETE FROM Etudiant WHERE id_etud=%s", (id_etud,))
-        conn.commit()
+        etudiant = session.query(Etudiant).filter(Etudiant.id_etud == id_etud).first()
+        if not etudiant:
+            print("Étudiant introuvable.")
+            return False
+        session.delete(etudiant)
+        session.commit()
         return True
     except Exception as e:
         print(f"Erreur suppression étudiant : {e}")
-        conn.rollback()
+        session.rollback()
         return False
     finally:
-        cur.close()
-        conn.close()
+        session.close()
