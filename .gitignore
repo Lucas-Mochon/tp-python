@@ -5,8 +5,8 @@ __pycache__/
 # Fichier d'environnement
 .env
 
-# Dossier rapport
-rapport/
+#rapport
+*.pdf
 
 # Fichiers temporaires de l'éditeur (VSCode, PyCharm)
 .vscode/
