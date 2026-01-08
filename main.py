@@ -96,12 +96,12 @@ elif page == "👥 Étudiants":
             if submitted:
                 if nom and prenom and email:
                     if create_etudiant(nom, prenom, email):
-                        st.markdown("<div class='success-box'>✅ Étudiant ajouté avec succès !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Étudiant ajouté avec succès !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors de l'ajout de l'étudiant</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors de l'ajout de l'étudiant</div>", unsafe_allow_html=True)
                 else:
-                    st.warning("⚠️ Veuillez remplir tous les champs")
+                    st.warning("Veuillez remplir tous les champs")
     
     # TAB 2 : Afficher les étudiants
     with tab2:
@@ -148,10 +148,10 @@ elif page == "👥 Étudiants":
                 
                 if submitted:
                     if update_etudiant(id_etud, nom, prenom, email):
-                        st.markdown("<div class='success-box'>✅ Étudiant mis à jour !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Étudiant mis à jour !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors de la mise à jour</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors de la mise à jour</div>", unsafe_allow_html=True)
         else:
             st.info("Aucun étudiant à modifier")
     
@@ -167,10 +167,10 @@ elif page == "👥 Étudiants":
             
             if st.button("Supprimer cet étudiant", type="secondary", use_container_width=True):
                 if delete_etudiant(id_etud):
-                    st.markdown("<div class='success-box'>✅ Étudiant supprimé !</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='success-box'>Étudiant supprimé !</div>", unsafe_allow_html=True)
                     st.rerun()
                 else:
-                    st.markdown("<div class='error-box'>❌ Erreur lors de la suppression</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='error-box'>Erreur lors de la suppression</div>", unsafe_allow_html=True)
         else:
             st.info("Aucun étudiant à supprimer")
 
@@ -199,12 +199,12 @@ elif page == "📖 Livres":
             if submitted:
                 if isbn and titre and editeur:
                     if create_livre(isbn, titre, editeur, int(annee), int(stock)):
-                        st.markdown("<div class='success-box'>✅ Livre ajouté avec succès !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Livre ajouté avec succès !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors de l'ajout du livre</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors de l'ajout du livre</div>", unsafe_allow_html=True)
                 else:
-                    st.warning("⚠️ Veuillez remplir tous les champs")
+                    st.warning("Veuillez remplir tous les champs")
     
     # TAB 2 : Afficher les livres
     with tab2:
@@ -255,10 +255,10 @@ elif page == "📖 Livres":
                 
                 if submitted:
                     if update_livre(isbn, titre, editeur, int(annee), int(stock)):
-                        st.markdown("<div class='success-box'>✅ Livre mis à jour !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Livre mis à jour !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors de la mise à jour</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors de la mise à jour</div>", unsafe_allow_html=True)
         else:
             st.info("Aucun livre à modifier")
     
@@ -274,10 +274,10 @@ elif page == "📖 Livres":
             
             if st.button("Supprimer ce livre", type="secondary", use_container_width=True):
                 if delete_livre(isbn):
-                    st.markdown("<div class='success-box'>✅ Livre supprimé !</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='success-box'>Livre supprimé !</div>", unsafe_allow_html=True)
                     st.rerun()
                 else:
-                    st.markdown("<div class='error-box'>❌ Erreur lors de la suppression</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='error-box'>Erreur lors de la suppression</div>", unsafe_allow_html=True)
         else:
             st.info("Aucun livre à supprimer")
 
@@ -307,10 +307,10 @@ elif page == "📋 Emprunts":
                 
                 if submitted:
                     if create_emprunt(id_etud, isbn):
-                        st.markdown("<div class='success-box'>✅ Emprunt enregistré !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Emprunt enregistré !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors de l'enregistrement</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors de l'enregistrement</div>", unsafe_allow_html=True)
         else:
             st.warning("⚠️ Veuillez d'abord ajouter des étudiants et des livres")
     
@@ -332,10 +332,10 @@ elif page == "📋 Emprunts":
                 
                 if st.button("Retourner ce livre", type="secondary", use_container_width=True):
                     if retour_emprunt(id_emprunt):
-                        st.markdown("<div class='success-box'>✅ Livre retourné !</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='success-box'>Livre retourné !</div>", unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.markdown("<div class='error-box'>❌ Erreur lors du retour</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='error-box'>Erreur lors du retour</div>", unsafe_allow_html=True)
             else:
                 st.info("Aucun emprunt actif")
         else:
@@ -409,18 +409,18 @@ elif page == "📊 Statistiques":
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("📚 Total Livres", len(livres))
+        st.metric("Total Livres", len(livres))
     
     with col2:
-        st.metric("👥 Total Étudiants", len(etudiants))
+        st.metric("Total Étudiants", len(etudiants))
     
     with col3:
         emprunts_actifs = len([e for e in emprunts if e['date_retour'] is None])
-        st.metric("📋 Emprunts Actifs", emprunts_actifs)
+        st.metric("Emprunts Actifs", emprunts_actifs)
     
     with col4:
         total_amendes = sum([e['solde_amende'] for e in etudiants])
-        st.metric("💰 Amendes Totales (€)", f"{total_amendes:.2f}")
+        st.metric("Amendes Totales (€)", f"{total_amendes:.2f}")
     
     # Graphiques
     st.divider()
@@ -444,7 +444,7 @@ elif page == "📊 Statistiques":
     
     # Tableau détaillé
     st.divider()
-    st.subheader("📋 Détails des amendes")
+    st.subheader("Détails des amendes")
     
     etudiants_amendes = [e for e in etudiants if e['solde_amende'] > 0]
     
@@ -464,4 +464,4 @@ elif page == "📊 Statistiques":
             hide_index=True
         )
     else:
-        st.success("✅ Aucune amende en attente !")
+        st.success("Aucune amende en attente !")

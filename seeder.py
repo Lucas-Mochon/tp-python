@@ -16,7 +16,7 @@ def seed_etudiants(n=30):
         email = fake.unique.email()
         if create_etudiant(nom, prenom, email):
             etudiants_crees += 1
-    print(f"✅ {etudiants_crees} étudiants ajoutés.")
+    print(f"{etudiants_crees} étudiants ajoutés.")
 
 def seed_livres(n=50):
     """Génère n livres"""
@@ -29,7 +29,7 @@ def seed_livres(n=50):
         stock = random.randint(1, 5)
         if create_livre(isbn, titre, editeur, annee, stock):
             livres_crees += 1
-    print(f"✅ {livres_crees} livres ajoutés.")
+    print(f"{livres_crees} livres ajoutés.")
 
 def seed_emprunts(n=50):
     """Génère n emprunts"""
@@ -52,12 +52,12 @@ def seed_emprunts(n=50):
 
 def run_seeder():
     """Lance le seeding complet"""
-    print("⚡ Début du seed de la base de données")
+    print("Début du seed de la base de données")
     init_db()  # Crée les tables
     seed_etudiants()
     seed_livres()
     seed_emprunts()
-    print("🎉 Base de données initialisée avec succès !")
+    print("Base de données initialisée avec succès !")
 
 if __name__ == "__main__":
     run_seeder()

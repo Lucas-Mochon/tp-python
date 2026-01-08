@@ -13,9 +13,9 @@ try:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base = declarative_base()
     
-    print("✅ Connexion à la base de données réussie")
+    print("Connexion à la base de données réussie")
 except Exception as e:
-    print(f"❌ Erreur de connexion : {e}")
+    print(f"Erreur de connexion : {e}")
     raise
 
 def get_session():
